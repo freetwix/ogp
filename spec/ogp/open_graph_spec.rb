@@ -15,10 +15,22 @@ describe OGP::OpenGraph do
     end
 
     context 'with missing one of the required attributes' do
-      it 'should raise an error' do
-        content = File.read("#{File.dirname(__FILE__)}/../fixtures/missing_required_attributes.html")
+      let(:content) { File.read("#{File.dirname(__FILE__)}/../fixtures/missing_required_attributes.html") }
+      let(:open_graph) { OGP::OpenGraph.new(content) }
 
-        expect { OGP::OpenGraph.new(content) }.to raise_error(OGP::MissingAttributeError)
+      it 'should not raise an error' do
+        expect { open_graph }.not_to raise_error
+      end
+
+      it 'should return the missing attributes as errors' do
+        expect(open_graph.valid?).to be(false)
+        expect(open_graph.errors).to eql([
+          { image: 'attribute is missing' }
+        ])
+      end
+
+      it 'should return the attributes found' do
+        expect(open_graph.url).to eql('http://www.imdb.com/title/tt0117500/')
       end
     end
 
